@@ -1,4 +1,4 @@
-package com.orion.templete.presentation.ui.theme
+package com.orion.templete.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
