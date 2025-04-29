@@ -75,11 +75,7 @@ project_root
 │   └── AppModule
 ├── domain
 │   ├── repository
-│   │   └── JobRepository
-│   └── use_case
-│       ├── BookmarkJob
-│       ├── GetBookmarkedJobs
-│       └── GetJobs
+│       └── JobRepository     
 ├── ui
 │   ├── bookmark
 │   │   ├── BookmarksScreen.kt
