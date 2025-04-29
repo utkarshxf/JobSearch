@@ -1,7 +1,9 @@
 package com.orion.templete.ui.jobs
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,12 +14,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.orion.templete.R
 import com.orion.templete.data.model.Job
@@ -30,7 +35,8 @@ import com.orion.templete.ui.theme.TempleteTheme
 @Composable
 fun JobsScreen(
     viewModel: JobsViewModel = hiltViewModel(),
-    bookmarkViewModel: BookmarkViewModel = hiltViewModel()
+    bookmarkViewModel: BookmarkViewModel = hiltViewModel(),
+    goToDetailedScreen:(Job)-> Unit,
 ) {
     val jobs = viewModel.jobsFlow.collectAsLazyPagingItems()
 
@@ -50,27 +56,141 @@ fun JobsScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(
-                    count = jobs.itemCount,
-                    key = { index -> jobs[index]?.id ?: index }
-                ) { index ->
-                    val job = jobs[index]
-                    if (job != null) {
-                        JobCard(
-                            job = job,
-                            bookmarkViewModel
+            when {
+                jobs.loadState.refresh is LoadState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                jobs.loadState.refresh is LoadState.Error -> {
+                    val error = (jobs.loadState.refresh as LoadState.Error).error
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        ErrorView(
+                            message = error.localizedMessage ?: "An unknown error occurred",
+                            onRetryClick = { jobs.retry() }
                         )
+                    }
+                }
+                else -> {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        contentPadding = PaddingValues(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(
+                            count = jobs.itemCount
+                        ) { index ->
+                            val job = jobs[index]
+                            if (job != null) {
+                                JobCard(
+                                    job = job,
+                                    bookmarkViewModel
+                                ){ goToDetailedScreen(it) }
+                            } else {
+                                // Placeholder for null items (can happen during loading)
+                                JobCardPlaceholder()
+                            }
+                        }
+
+                        // Add loading footer when appending more items
+                        if (jobs.loadState.append is LoadState.Loading) {
+                            item(span = { GridItemSpan(maxLineSpan) }) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
+                        }
+
+                        // Add error footer when append fails
+                        if (jobs.loadState.append is LoadState.Error) {
+                            item(span = { GridItemSpan(maxLineSpan) }) {
+                                val error = (jobs.loadState.append as LoadState.Error).error
+                                ErrorView(
+                                    message = error.localizedMessage ?: "Failed to load more items",
+                                    onRetryClick = { jobs.retry() },
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            }
+                        }
+
+                        // Show empty state
+                        if (jobs.itemCount == 0 && jobs.loadState.refresh !is LoadState.Loading) {
+                            item(span = { GridItemSpan(maxLineSpan) }) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "No jobs found",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.padding(16.dp)
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ErrorView(
+    message: String,
+    onRetryClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        Button(
+            onClick = onRetryClick,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            )
+        ) {
+            Text("Retry")
+        }
+    }
+}
+
+@Composable
+fun JobCardPlaceholder() {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.LightGray.copy(alpha = 0.3f))
+        )
     }
 }
 
@@ -126,6 +246,6 @@ fun JobsScreenPreview() {
         // Add more sample jobs if needed
     )
     TempleteTheme {
-        JobsScreen()
+        JobsScreen(){}
     }
 }

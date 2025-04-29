@@ -1,5 +1,10 @@
 package com.orion.templete.data.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+import java.io.Serializable
+
+@Parcelize
 data class Job(
     val company_name: String? = null,
     val id: Int,
@@ -14,4 +19,4 @@ data class Job(
     val primary_details: PrimaryDetails? = null,
     val qualification: Int? = null,
     val whatsapp_no: String? = null
-)
+): Parcelable

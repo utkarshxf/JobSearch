@@ -12,6 +12,7 @@ import com.orion.templete.data.model.PrimaryDetails
 import com.orion.templete.ui.bookmark.BookmarksScreen
 import com.orion.templete.ui.jobs.JobsScreen
 import com.orion.templete.ui.common.BottomNav
+import com.orion.templete.ui.jobs.JobDetailsScreen
 import com.orion.templete.util.Screen
 
 @Composable
@@ -28,7 +29,14 @@ fun MainScreen() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Jobs.route) {
-                JobsScreen()
+                JobsScreen() { job ->
+                    navController.currentBackStackEntry?.savedStateHandle?.set("job", job)
+                    navController.navigate(Screen.JobDetails.route)
+                }
+            }
+            composable(Screen.JobDetails.route) {
+                val job = navController.previousBackStackEntry?.savedStateHandle?.get<Job>("job")
+                if(job != null) JobDetailsScreen(job){ navController.popBackStack() }
             }
             composable(Screen.Bookmarks.route) {
                 BookmarksScreen()

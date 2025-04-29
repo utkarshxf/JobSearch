@@ -19,4 +19,9 @@ sealed class Screen(val route: String, val title: String, val icon: @Composable 
         title = "Bookmarks",
         icon = { Icon(painter = painterResource(id = R.drawable.ic_bookmark), contentDescription = "Bookmarks") }
     )
+    object JobDetails : Screen(
+        route = "job_details",
+        title = "Job Details",
+        icon = { Icon(Icons.Filled.FavoriteBorder, contentDescription = "Job Details") }
+    )
 }
