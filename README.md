@@ -111,7 +111,6 @@ The UI layer is built entirely with Jetpack Compose and follows these principles
 Key Components:
 - **JobsScreen**: Displays job listings with infinite scroll capability
 - **BookmarksScreen**: Shows saved jobs stored locally
-- **JobDetailScreen**: Presents detailed information about a selected job
 - **Common Components**: Reusable UI elements shared across screens
 
 ### Domain Layer
