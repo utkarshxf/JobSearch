@@ -2,6 +2,8 @@ package com.orion.templete.di
 
 import android.content.Context
 import androidx.room.Room
+import com.flashcall.me.data.local.AppDatabase
+import com.flashcall.me.data.local.dao.JobDao
 import com.orion.templete.data.network.ApiService
 import com.orion.templete.data.network.ApiService.Companion.baseurl
 import com.orion.templete.data.repository.JobRepositoryImplementation
@@ -11,7 +13,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -34,19 +35,21 @@ object  AppModule {
             .create(ApiService::class.java)
     }
 
-//    @Provides
-//    @Singleton
-//    fun provideDatabase(
-//        @ApplicationContext context: Context
-//    ): AppDatabase {
-//        return Room.databaseBuilder(
-//            context,
-//            AppDatabase::class.java,
-//            AppDatabase.DATABASE_NAME
-//        )
-//            .fallbackToDestructiveMigration() // Remove this in production
-//            .build()
-//    }
+    @Provides
+    @Singleton
+    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
+        return Room.databaseBuilder(
+            context,
+            AppDatabase::class.java,
+            AppDatabase.DATABASE_NAME
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideJobDao(appDatabase: AppDatabase): JobDao {
+        return appDatabase.jobDao()
+    }
     @Provides
     fun provideJobsRepository(
     apiService: ApiService,

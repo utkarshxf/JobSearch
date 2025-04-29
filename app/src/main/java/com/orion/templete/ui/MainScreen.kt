@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.orion.templete.data.model.Job
 import com.orion.templete.data.model.PrimaryDetails
+import com.orion.templete.ui.bookmark.BookmarksScreen
 import com.orion.templete.ui.jobs.JobsScreen
 import com.orion.templete.ui.common.BottomNav
 import com.orion.templete.util.Screen
@@ -30,8 +31,7 @@ fun MainScreen() {
                 JobsScreen()
             }
             composable(Screen.Bookmarks.route) {
-//                BookmarkScreen()
-                Text("Bookmark Screen")
+                BookmarksScreen()
             }
         }
     }

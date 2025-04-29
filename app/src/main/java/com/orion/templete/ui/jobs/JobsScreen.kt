@@ -22,12 +22,15 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.orion.templete.R
 import com.orion.templete.data.model.Job
 import com.orion.templete.data.model.PrimaryDetails
+import com.orion.templete.ui.bookmark.BookmarkViewModel
+import com.orion.templete.ui.common.JobCard
 import com.orion.templete.ui.theme.TempleteTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JobsScreen(
-    viewModel: JobsViewModel = hiltViewModel()
+    viewModel: JobsViewModel = hiltViewModel(),
+    bookmarkViewModel: BookmarkViewModel = hiltViewModel()
 ) {
     val jobs = viewModel.jobsFlow.collectAsLazyPagingItems()
 
@@ -56,11 +59,13 @@ fun JobsScreen(
             ) {
                 items(
                     count = jobs.itemCount,
+                    key = { index -> jobs[index]?.id ?: index }
                 ) { index ->
                     val job = jobs[index]
                     if (job != null) {
                         JobCard(
-                            job = job
+                            job = job,
+                            bookmarkViewModel
                         )
                     }
                 }
@@ -68,112 +73,6 @@ fun JobsScreen(
         }
     }
 }
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun JobCard(
-    job: Job,
-    isBookmarked: Boolean = false,
-    onBookmarkClick: () -> Unit = {}
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            job.title?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            job.company_name?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "₹${job.salary_min ?: 0} - ₹${job.salary_max ?: 0}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            if (job.primary_details?.Place != null) {
-                Text(
-                    text = job.primary_details.Place,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-            }
-
-            // Job Type - only show if primary_details and Job_Type are not null
-            if (job.primary_details?.Job_Type != null) {
-                Text(
-                    text = job.primary_details.Job_Type,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp)
-            ) {
-                Button(
-                    onClick = { /* Apply action */ },
-                    modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .height(36.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(text = job.button_text?.takeIf { it.isNotEmpty() } ?: "Apply")
-                }
-
-                IconButton(
-                    onClick = onBookmarkClick,
-                    modifier = Modifier.align(Alignment.BottomEnd)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_bookmark),
-                        contentDescription = "Bookmark",
-                        tint = if (isBookmarked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        }
-    }
-}
-
 
 // Preview function for testing
 @Preview
