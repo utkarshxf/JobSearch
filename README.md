@@ -183,7 +183,7 @@ Follow these steps to build and run the project:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/JobSearch.git
+   git clone https://github.com/utkarshxf/JobSearch.git
    ```
 
 2. Open the project in Android Studio Arctic Fox or later
