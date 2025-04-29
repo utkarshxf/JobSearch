@@ -8,9 +8,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.orion.templete.R
 import com.orion.templete.data.model.Job
 import com.orion.templete.ui.bookmark.BookmarkViewModel
 
@@ -101,7 +103,7 @@ fun JobCard(
             ) {
                 // Button text check
                 Button(
-                    onClick = { /* Apply action */ },
+                    onClick = {  },
                     modifier = Modifier
                         .align(Alignment.CenterStart)
                         .height(36.dp),
@@ -118,7 +120,7 @@ fun JobCard(
                     modifier = Modifier.align(Alignment.BottomEnd)
                 ) {
                     Icon(
-                        imageVector = if (isBookmarked) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                        painter = painterResource(id = if (isBookmarked) R.drawable.ic_filled_bookmark else R.drawable.ic_bookmark),
                         contentDescription = "Bookmark",
                         tint = if (isBookmarked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                     )
